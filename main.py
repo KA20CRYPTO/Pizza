@@ -5,7 +5,7 @@ from time import sleep
 # -----------------------------
 # Firebase Web API Key
 # -----------------------------
-API_KEY = "YOUR_FIREBASE_WEB_API_KEY"
+API_KEY = "AIzaSyAYOROctBoSyJ3aeHafUm-62zDl8uA2TQU"
 
 # -----------------------------
 # Session State Setup
