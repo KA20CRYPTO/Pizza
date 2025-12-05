@@ -34,9 +34,10 @@ FIREBASE_SERVICE_ACCOUNT_JSON = """
 def initialize_firebase():
     if not firebase_admin._apps:
         try:
-            # FIXED: Convert JSON string into file-like object
-            cred_file = io.StringIO(FIREBASE_SERVICE_ACCOUNT_JSON)
-            cred = credentials.Certificate(cred_file)
+            # FIX: Convert JSON → dict (what Firebase wants)
+            cred_dict = json.loads(FIREBASE_SERVICE_ACCOUNT_JSON)
+
+            cred = credentials.Certificate(cred_dict)
 
             firebase_admin.initialize_app(cred)
             st.success("Firebase initialized successfully!")
