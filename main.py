@@ -5,136 +5,7 @@ from time import sleep # Used for simulating loading delays
 import json # New import for parsing JSON string
 import io # New import for handling string as file object
 
-# --- Configuration & Setup ---import streamlit as st
-import firebase_admin
-from firebase_admin import credentials, auth
-from time import sleep
-import json
-import io
-
 # --- Configuration & Setup ---
-
-# IMPORTANT: Firebase Service Account Key stored directly as a JSON string for single-file deployment.
-FIREBASE_SERVICE_ACCOUNT_JSON = """
-{
-"type": "service_account",
-"project_id": "project-1-7f58e",
-"private_key_id": "3f79740728d85ac5db9506383ef20f7348793b17",
-"private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC2PXR1zT9Smt9h\n1FRgjVgHMHlYD2UQVAuunNxSzFdVSr/EVYSSMw0AA+c44S9qH3Vvfm6ucyOzHAyS\n1Sp7gvn0FxRBFOh0uoGZhtVkL1e0QBtuCTxUCDbdCNEoR+tv1mHjOM3UgIz5YDcr\nT2n/OZKcpgMn7rG9cmsGjIsULnou/PkGoYcqK0UGDpYXY6kr/OtXNCAq6lvgGgWC\nPF4ujuFapzZvEqi2lexM74O7Ude6GLhTIGMTRV150K4VcrW7Y/DuVLKosdvz5wIj\n5ZxY0Pm8Ilhv4+W2+85J+kabEHyu+p9Xx38dTHnM2sOf89c48BlsV/KLnotgsbqM\nHFXevmV/AgMBAAECggEAAS6fF3AVnbw5OPHmF4zof0U4HSweK3xHMOYaP8Owc469\nPJiSTZMkFqtFJVykIlE0JSRVeiEZ9YOw12k1rnKIKW1k5cue7J2UpoUu8EiJ44vg\nr+TtOF1vDav+hnEIGUQP2LYkgW9DJYEv01DDAM+1rqQ5ez0NW288kSfdHjNIwdW0\nTOS6UssE5CgKuHgfs+ClR5KErWJUdinfJWfG9c4Q3t4u3nTZb9IY0VvWOD1WmO+1\nV7ffkiM4xGYq3FPOISkbn4wsswVLWddWXltVVfAFGGZX3196z1DW/JKGgK6ZMlEH\nUiBL6ZNuY9R2YMtbJXkDMi3t/VkmMrZKG8KvrrJ64QKBgQD9UY11EMHg8DNfmwNT\nA0VLmyL0P55Qa1a0/LlvVEK/WF7FYoLsgsyggaLuyF5S8m+Awq0fSwxRYoIhEy0E\nXetZ6bdj5uPKFHDcFj/rvXrXN9Rn/g6EO1BQ8zpc4MuFp8FTBSoG09OrUUh1sSoS\nr4f4p8fba9pmntcYGpJ3/gmxJwKBgQC4K0rfq2e1JGqK4wtBrv91UN07gE151D6U\nAFavig5NVwbCkAJ790/v60ooxoVqQHN9QhuoW+K5FSNe8a3MWcgkm42AfOQPcw2k\nTA24Z++KgsTgShPD5d4Gl4ucUimaz0jn7jZFPn4L0PivqxnUGKI0hlPE24Aq/x5B\nZJ1WsCov6QKBgQCaxfsx7X0n3FrnLSUI0VTDbxQaO8yUwiGGEGuUM91cX7f3zcrE\nit5PqyVL06yd7XZnK4rvNcFe8FslrjuxEVk85GmiZm4DCB40untvo6OsX3Yt27Iu\n5Lab3yBnowl2rhqWiO82oLIRWGZ3UjmslQb0zD52OB2G2cH9/i5DljmBvQKBgQCO\n181ABELwxWj5hjYB4Qh0Zp7g+pec6ZkL0+NoTWzgYaJ1n5q9qclPbbBcRfXOvmSU\n/4RSJcqJATMo/cxuViic9CVhRfzhWrx29SIjKEIrrVekGvCPnaeCd2IqgbORRjrm\n4OUo+dprsc5g+hWTYvPUR2eLpTAYqT0/PRmn1gUymQKBgQDKJnGRjFtmR2P7zBa8\ny5zi9r34zMJlgu7KG771mqLKd97kzFh5vns0I2RYxKeg7NErtppCsg3puMJrEWvi\nt9JbdlvqAVlWnUAyWiUmQQqL7uU5PIvJ+jx0vsxBst/yD3Au7LCjDjhK95hXDMhd\n6Sve1e1EZvZrxuz/HtxfrpTRrg==\n-----END PRIVATE KEY-----\n",
-"client_email": "firebase-adminsdk-fbsvc@project-1-7f58e.iam.gserviceaccount.com",
-"client_id": "115773423468809114243",
-"auth_uri": "https://accounts.google.com/o/oauth2/auth",
-"token_uri": "https://oauth2.googleapis.com/token",
-"auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-"client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40project-1-7f58e.iam.gserviceaccount.com",
-"universe_domain": "googleapis.com"
-}
-"""
-
-def initialize_firebase():
-    if not firebase_admin._apps:
-        try:
-            # FIX: Convert JSON → dict (what Firebase wants)
-            cred_dict = json.loads(FIREBASE_SERVICE_ACCOUNT_JSON)
-
-            cred = credentials.Certificate(cred_dict)
-
-            firebase_admin.initialize_app(cred)
-            st.success("Firebase initialized successfully!")
-
-        except Exception as e:
-            st.error(f"Firebase initialization failed: {e}")
-            st.stop()
-
-# Initialize immediately
-initialize_firebase()
-
-# --- Session State ---
-
-if 'user_id' not in st.session_state:
-    st.session_state['user_id'] = None
-if 'page' not in st.session_state:
-    st.session_state['page'] = 'auth'
-
-# --- Auth Logic ---
-
-def signup_user(email, password):
-    try:
-        user = auth.create_user(
-            email=email,
-            password=password,
-            email_verified=False
-        )
-        st.success(f"Account created successfully for {user.email}!")
-        return True
-    except Exception as e:
-        st.error(f"Signup error: {e}")
-        return False
-
-def login_user(email, password):
-    try:
-        user = auth.get_user_by_email(email)
-        st.session_state['user_id'] = user.uid
-        st.session_state['page'] = 'dashboard'
-        st.success("Login successful! Redirecting…")
-        sleep(1)
-        st.rerun()
-    except Exception:
-        st.error("Invalid email or user not found.")
-
-def logout():
-    st.session_state['user_id'] = None
-    st.session_state['page'] = 'auth'
-    st.info("Logged out successfully!")
-    st.rerun()
-
-# --- UI Pages ---
-
-def render_auth_page():
-    st.title("🍕 Pizza Planet - Login")
-
-    tab1, tab2 = st.tabs(["Login", "Sign Up"])
-
-    with tab1:
-        with st.form("login_form"):
-            email = st.text_input("Email")
-            password = st.text_input("Password", type="password")
-            submit = st.form_submit_button("Login")
-
-            if submit:
-                login_user(email, password)
-
-    with tab2:
-        with st.form("signup_form"):
-            email = st.text_input("Email")
-            password = st.text_input("Password", type="password")
-            submit = st.form_submit_button("Sign Up")
-
-            if submit:
-                if len(password) < 6:
-                    st.warning("Password must be at least 6 characters.")
-                else:
-                    signup_user(email, password)
-
-def render_pizza_dashboard():
-    st.title("✨ Pizza Dashboard")
-    st.sidebar.button("Logout", on_click=logout)
-
-    st.write("Welcome User:", st.session_state['user_id'])
-
-# --- Main ---
-
-def main():
-    st.set_page_config(page_title="Pizza App", page_icon="🍕", layout="wide")
-
-    if st.session_state['page'] == 'auth' or st.session_state['user_id'] is None:
-        render_auth_page()
-    else:
-        render_pizza_dashboard()
-
-if __name__ == "__main__":
-    main()
-
 
 # IMPORTANT: Firebase Service Account Key stored directly as a JSON string for single-file deployment.
 # We ensure the JSON block starts cleanly to avoid indentation errors during json.loads().
@@ -143,7 +14,7 @@ FIREBASE_SERVICE_ACCOUNT_JSON = """
 "type": "service_account",
 "project_id": "project-1-7f58e",
 "private_key_id": "3f79740728d85ac5db9506383ef20f7348793b17",
-"private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC2PXR1zT9Smt9h\n1FRgjVgHMHlYD2UQVAuunNxSzFdVSr/EVYSSMw0AA+c44S9qH3Vvfm6ucyOzHAyS\n1Sp7gvn0FxRBFOh0uoGZhtVkL1e0QBtuCTxUCDbdCNEoR+tv1mHjOM3UgIz5YDcr\nT2n/OZKcpgMn7rG9cmsGjIsULnou/PkGoYcqK0UGDpYXY6kr/OtXNCAq6lvgGgWC\nPF4ujuFapzZvEqi2lexM74O7Ude6GLhTIGMTRV150K4VcrW7Y/DuVLKosdvz5wIj\n5ZxY0Pm8Ilhv4+W2+85J+kabEHyu+p9Xx38dTHnM2sOf89c48BlsV/KLnotgsbqM\nHFXevmV/AgMBAAECggEAAS6fF3AVnbw5OPHmF4zof0U4HSweK3xHMOYaP8Owc469\nPJiSTZMkFqtFJVykIlE0JSRVeiEZ9YOw12k1rnKIKW1k5cue7J2UpoUu8EiJ44vg\nr+TtOF1vDav+hnEIGUQP2LYkgW9DJYEv01DDAM+1rqQ5ez0NW288kSfdHjNIwdW0\nTOS6UssE5CgKuHgfs+ClR5KErWJUdinfJWfG9c4Q3t4u3nTZb9IY0VvWOD1WmO+1\nV7ffkiM4xGYq3FPOISkbn4wsswVLWddWXltVVfAFGGZX3196z1DW/JKGgK6ZMlEH\nUiBL6ZNuY9R2YMtbJXkDMi3t/VkmMrZKG8KvrrJ64QKBgQD9UY11EMHg8DNfmwNT\nA0VLmyL0P55Qa1a0/LlvVEK/WF7FYoLsgsyggaLuyF5S8m+Awq0fSwxRYoIhEy0E\nXetZ6bdj5uPKFHDcFj/rvXrXN9Rn/g6EO1BQ8zpc4MuFp8FTBSoG09OrUUh1sSoS\nr4f4p8fba9pmntcYGpJ3/gmxJwKBgQC4K0rfq2e1JGqK4wtBrv91UN07gE151D6U\nAFavig5NVwbCkAJ790/v60ooxoVqQHN9QhuoW+K5FSNe8a3MWcgkm42AfOQPcw2k\nTA24Z++KgsTgShPD5d4Gl4ucUimaz0jn7jZFPn4L0PivqxnUGKI0hlPE24Aq/x5B\nZJ1WsCov6QKBgQCaxfsx7X0n3FrnLSUI0VTDbxQaO8yUwiGGEGuUM91cX7f3zcrE\nit5PqyVL06yd7XZnK4rvNcFe8FslrjuxEVk85GmiZm4DCB40untvo6OsX3Yt27Iu\n5Lab3yBnowl2rhqWiO82oLIRWGZ3UjmslQb0zD52OB2G2cH9/i5DljmBvQKBgQCO\n181ABELwxWj5hjYB4Qh0Zp7g+pec6ZkL0+NoTWzgYaJ1n5q9qclPbbBcRfXOvmSU\n/4RSJcqJATMo/cxuViic9CVhRfzhWrx29SIjKEIrrVekGvCPnaeCd2IqgbORRjrm\n4OUo+dprsc5g+hWTYvPUR2eLpTAYqT0/PRmn1gUymQKBgQDKJnGRjFtmR2P7zBa8\ny5zi9r34zMJlgu7KG771mqLKd97kzFh5vns0I2RYxKeg7NErtppCsg3puMJrEWvi\nt9JbdlvqAVlWnUAyWiUmQQqL7uU5PIvJ+jx0vsxBst/yD3Au7LCjDjhK95hXDMhd\n6Sve1e1EZvZrxuz/HtxfrpTRrg==\n-----END PRIVATE KEY-----\n",
+"private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC2PXR1zT9Smt9h\n1FRgjVgHMHlYD2UQVAuunNxSzFdVSr/EVYSSMw0AA+c44S9qH3Vvfm6ucyOzHAyS\n1Sp7gvn0FxRBFOh0uoGZhtVkL1e0QBtuCTxUCDbdCNEoR+tv1mHjOM3UgIz5YDcr\nT2n/OZKcpgMn7rG9cmsGjIsULnou/PkGoYcqK0UGDpYXY6kr/OtXNCAq6lvgGgWC\nPF4ujuFapzZvEqi2lexM74O7Ude6GLhTIGMTRV150K4VcrW7Y/DuVLKosdvz5wIj\n5ZxY0Pm8Ilhv4+W2+85J+kabEHyu+p9Xx38dTHnM2sOf89c48BlsV/KLnotgsbqM\nHFXevmV/AgMBAAECggEAAS6fF3AVnbw5OPHmF4zof0U4HSweK3xHMOYaP8Owc469\nPJiSTZMkFqtFJVykIlE0JSRVeiEZ9YOw12k1rnKIKW1k5cue7J2UpoUu8EiJ44vg\nr+TtOF1vDav+hnEIGUQP2LYkgW9DJYEv01DDAM+1rqQ5ez0NW288kSfdHjNIwdW0\nTOS6UssE5CgKuHgfs+ClR5KErWJUdinfJWfG9c4Q3t4u3nTZb9IY0VvWOD1WmO+1\nV7ffkiM4xGYq3FPOISkbn4wsswVLWddWXltVVfAFGGZX3196z1DW/JKGgK6ZMlEH\nUiBL6ZNuY9R2YMtbJXkDMi3t/VkmMrZKG8KvrrJ64QKBgQD9UY11EMHg8DNfmwNT\nA0VLmyL0P55Qa1a0/LlvVEK/WF7FYoLsgsyggaLuyF5S8m+Awq0fSwxRYoIhEy0E\nXetZ6bdj5uPKFHDcFj/rvXrXN9Rn/g6EO1BQ8zpc4MuFp8FTBSoG09OrUUh1sSoS\nr4f4p8fba9pmntcYGpJ3/gmxJwKBgQC4K0rfq2e1JGqK4wtBrv91UN07gE151D6U\nAFavig5NVwbCkAJ790/v60ooxoVqQHN9QhuoW+K5FSNe8a3MWcgkm42AfOQPcw2k\nTA24Z++KgsTgShPD5d4Gl4ucUimaz0jn7jZFPn4L0PivqxnUGKI0hlPE24Aq/x5B\nZJ1WsCov6QKBgQCaxfsx7X0n3FrnLSUI0VTDbxQaO8yUwiCGEGuUM91cX7f3zcrE\nit5PqyVL06yd7XZnK4rvNcFe8FslrjuxEVk85GmiZm4DCB40untvo6OsX3Yt27Iu\n5Lab3yBnowl2rhqWiO82oLIRWGZ3UjmslQb0zD52OB2G2cH9/i5DljmBvQKBgQCO\n181ABELwxWj5hjYB4Qh0Zp7g+pec6ZkL0+NoTWzgYaJ1n5q9qclPbbBcRfXOvmSU\n/4RSJcqJATMo/cxuViic9CVhRfzhWrx29SIjKEIrrVekGvCPnaeCd2IqgbORRjrm\n4OUo+dprsc5g+hWTYvPUR2eLpTAYqT0/PRmn1gUymQKBgQDKJnGRjFtmR2P7zBa8\ny5zi9r34zMJlgu7KG771mqLKd97kzFh5vns0I2RYxKeg7NErtppCsg3puMJrEWvi\nt9JbdlvqAVlWnUAyWiUmQQqL7uU5PIvJ+jx0vsxBst/yD3Au7LCjDjhK95hXDMhd\n6Sve1e1EZvZrxuz/HtxfrpTRrg==\n-----END PRIVATE KEY-----\n",
 "client_email": "firebase-adminsdk-fbsvc@project-1-7f58e.iam.gserviceaccount.com",
 "client_id": "115773423468809114243",
 "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -158,10 +29,9 @@ def initialize_firebase():
     """Initializes the Firebase Admin SDK by loading the service account credentials from the JSON string."""
     if not firebase_admin._apps:
         try:
-            # Use io.StringIO to treat the JSON string as a file, which is often safer 
-            # for the credentials.Certificate method when embedding the key.
-            # We first load the string into a dictionary, then pass it to credentials.Certificate.
-            cred_dict = json.loads(FIREBASE_SERVICE_ACCOUNT_JSON)
+            # Use .strip() on the JSON string before parsing to remove potential hidden characters
+            # that cause the "Invalid control character" error.
+            cred_dict = json.loads(FIREBASE_SERVICE_ACCOUNT_JSON.strip())
             cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
             st.success("Firebase initialized successfully with provided credentials!")
