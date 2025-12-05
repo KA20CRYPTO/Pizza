@@ -31,12 +31,16 @@ FIREBASE_SERVICE_ACCOUNT_JSON = """
 def initialize_firebase():
     if not firebase_admin._apps:
         try:
-            data = json.loads(FIREBASE_SERVICE_ACCOUNT_JSON.strip())
-            fake_file = io.StringIO(json.dumps(data))
+            # Load JSON string safely
+            cred_dict = json.loads(FIREBASE_SERVICE_ACCOUNT_JSON.strip())
 
-            cred = credentials.Certificate(fake_file)
+            # Initialize Firebase using dict (correct & supported)
+            cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
 
+        except json.JSONDecodeError as e:
+            st.error(f"JSON decode error: {e}")
+            st.stop()
         except Exception as e:
             st.error(f"Firebase initialization failed: {e}")
             st.stop()
