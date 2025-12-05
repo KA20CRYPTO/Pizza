@@ -15,7 +15,7 @@ def initialize_firebase():
     if not firebase_admin._apps:
         # Check if the placeholder path is used and warn the user
         if SERVICE_ACCOUNT_FILE == '.streamlit/project-1-7f58e-firebase-adminsdk-fbsvc-3f79740728':
-            st.error("🚨 Firebase Setup Required: Please replace 'path/to/your/serviceAccountKey.json' with your actual service account file path.")
+            st.error("🚨 Firebase Setup Required: Please replace '.streamlit/project-1-7f58e-firebase-adminsdk-fbsvc-3f79740728' with your actual service account file path.")
             st.stop()
         
         try:
